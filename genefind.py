@@ -9,6 +9,7 @@
 #drandom switch
 
 import random
+import cProfile
 
 #interesting functions:
 #random.randrange()
@@ -26,42 +27,42 @@ import random
 #(???)
 actg = "ACTG"
 
-def RDV(stringIn, val=1, consecutive=False):
+def random_delete_n(stringIn, n=1, consecutive=False):
+    """Randomly delete n characters from a string."""
     stringOut = stringIn
-    if len(stringOut)<val+1: return stringOut
+    if len(stringOut)<n+1: return stringOut
     if not consecutive:
-        for i in range(val):
-            counter = random.choice(range(len(stringOut)))
+        for i in range(n):
+            counter = random.randrange(len(stringOut))
             stringOut = stringOut[:counter]+stringOut[counter+1:]
         return stringOut
     else:
-        counter = random.choice(range(len(stringOut)-val+1))
-        stringOut = stringOut[:counter]+stringOut[counter+val:]
+        counter = random.randrange((len(stringOut)-n+1))
+        stringOut = stringOut[:counter]+stringOut[counter+n:]
         return stringOut
 
-def RAV(stringIn, val=1, consecutive=False):
+def random_add_n(stringIn, n=1, consecutive=False):
+    """Randomly add n characters to a string."""
     stringOut = stringIn
-    if len(stringOut)<val+1: return stringOut
+    if len(stringOut)<n+1: return stringOut
     if not consecutive:
-        for i in range(val):
-            counter = random.choice(range(len(stringOut))) # Inefficient
+        for i in range(n):
+            counter = random.randrange((len(stringOut)))
             stringOut = stringOut[:counter]+random.choice(actg)\
                         +stringOut[counter:]
-            #print(stringOut)
         return stringOut
     else:
-        counter = random.choice(range(len(stringOut)-val+1))
-        for i in range(val):
+        counter = random.randrange((len(stringOut)-n+1))
+        for i in range(n):
             stringOut = stringOut[:counter]+random.choice(actg)\
                         +stringOut[counter:]
-            #print(stringOut)
         return stringOut
 
 def RS(stringIn):
     stringOut = stringIn
     if len(stringOut)<2: return stringOut
-    ct1 = random.choice(range(len(stringOut)))
-    ct2 = random.choice(range(len(stringOut)))
+    ct1 = random.randrange((len(stringOut)))
+    ct2 = random.randrange((len(stringOut)))
     if ct1>ct2: ct2, ct1 = ct1, ct2
     stringOut = stringOut[:ct1]\
                 +stringOut[ct2:ct2+1]\
@@ -70,29 +71,40 @@ def RS(stringIn):
                 +stringOut[ct2+1:]
     return stringOut
 
-def RSH(stringIn, val):
-    if len(stringIn)<val+1: return stringIn
-    stringOut = stringIn[val:]+stringIn[:val]
+def random_shift(stringIn, n):
+    """Deterministically shift a string starting from position n.
+
+    It's important to note that how this function is used in the rest of the program
+    relies on you specifying constant values for the random shifts, so in the 
+    set of possible random operations positions are defined such that it can be 
+    1 or 3, positive or negative. This allows it to implement shifting both sides
+    of the string in both lengths with one function."""
+    if len(stringIn)<n+1: return stringIn
+    stringOut = stringIn[n:]+stringIn[:n]
     return stringOut
 
-operations = ["RSH(string,3)","RSH(string,1)","RSH(string,-1)","RSH(string,-3)",\
-              "RS(string)","RAV(string)","RAV(string,3)","RAV(string,3,True)",\
-              "RDV(string)","RDV(string,3)","RDV(string,3,True)"]
+
+# This might be confusing. Basically we're defining these operations in the global
+# scope, and then executing them using eval(). This is about 1/3 slower than a native
+# function call btw according to cProfiler.
+operations = ["random_shift(string,3)","random_shift(string,1)","random_shift(string,-1)",
+              "random_shift(string,-3)", "RS(string)",
+              "random_add_n(string)","random_add_n(string,3)","random_add_n(string,3,True)",\
+              "random_delete_n(string)","random_delete_n(string,3)","random_delete_n(string,3,True)"]
 
 def Mod2Run(listIn):##pop gen
+    """Generate the population. Here we randomly pull from a set of predefined
+    operations to mutate our existing strings, then execute the operation."""
     #listIn = [a,b]
     mutCount = 0
     countProc = 0
     listOut = []
     listOut += listIn
     while len(listOut)<=100:
-        ##print(countProc, len(listOut))
         string = listOut[countProc]
         op = random.choice(operations)
         listOut.append(eval(op))
         countProc+=1
-        #print(countProc, listOut[len(listOut)-1], op, len(listOut[len(listOut)-1]))
-    #for i in listOut:print(countProc, i)
     return listOut
 
 def Mod3Run(string1, string2):##string comparison
@@ -113,8 +125,6 @@ def Mod4Run(listIn, fitness):##pop cull
     while len(listP)>10:
         listP.pop()
     listOut = listP
-##    for i in listP:
-##        listOut.append(i[1])
     return listOut
 
 def Mod1Run(listIn, trackIn={}):##iterator
@@ -154,26 +164,30 @@ print(\
 "GeneFind: A Designspace Searcher"
 ********************
 """)
-lis = [initial()]
-inputIsSafe = 0
-##while inputIsSafe:
+
+
+def main():
+    """Run the mainloop and track fitness between generations."""
+    lis = [initial()]
+    inputIsSafe = 0
+    ##while inputIsSafe:
     ##fitness = input("Input comparison string to be found: ")
-fitness = input("Input comparison string to be found: ")
-track = {"generationCount":0, 'currentFit':0.0, \
-                    'lastFit':0.0, 'bestFit':0.0}
-while 1:
-    lis, track = Mod1Run(lis, track)
-##    if track["generationCount"]<10 or track["generationCount"]%100 == 0:
-##        print(track["bestFit"], lis)
-    lis = Mod2Run(lis)
-##    if track["generationCount"]<10 or track["generationCount"]%100 == 0:
-##        print(track["bestFit"], lis)
-    lis = Mod4Run(lis,fitness)
-    if track["bestFit"] == 100:
-        break
-    if track["generationCount"]%10 == 0 or track["bestFit"]>track["lastFit"]:
-        print("Generation ",track["generationCount"],"Fitness ", track["bestFit"])
-        ##print("*****")
+    fitness = input("Input comparison string to be found: ")
+    track = {"generationCount":0, 'currentFit':0.0, \
+             'lastFit':0.0, 'bestFit':0.0}
+    while 1:
+        lis, track = Mod1Run(lis, track)
+        lis = Mod2Run(lis)
+        lis = Mod4Run(lis,fitness)
+        if track["bestFit"] == 100:
+            break
+        if track["generationCount"]%10 == 0 or track["bestFit"]>track["lastFit"]:
+            # This should really be put under a -v option
+            print("Generation ",track["generationCount"],"Fitness ", track["bestFit"])
+
+# Should really add an option to test performance
+main()
+#cProfile.run('main()')
     
     
     
