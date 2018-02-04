@@ -8,6 +8,7 @@
 #drandom add 3 random
 #drandom switch
 
+from argparse import ArgumentParser
 import random
 import cProfile
 
@@ -116,16 +117,13 @@ def Mod3Run(string1, string2):##string comparison
     difference *= lengthDif
     return difference
 
-def Mod4Run(listIn, fitness):##pop cull
+def Mod4Run(listIn, fitness, fitness_percentile):##pop cull
     listP = []
     for i in listIn:
         listP.append([Mod3Run(i,fitness),i])
     listP.sort()
-    listP.reverse()
-    while len(listP)>10:
-        listP.pop()
-    listOut = listP
-    return listOut
+    fitness_cutoff = -round(len(listP) * fitness_percentile)
+    return listP[fitness_cutoff:]
 
 def Mod1Run(listIn, trackIn={}):##iterator
     trackOut = trackIn
@@ -168,17 +166,22 @@ print(\
 
 def main():
     """Run the mainloop and track fitness between generations."""
+    parser = ArgumentParser()
+    parser.add_argument("genetic_string")
+    parser.add_argument("--fitness-percentile", type=float, default=90, dest="fp",
+                        help=("Number from 1 to 99.999... specifying the " 
+                              "fitness cutoff per generation."))
+    arguments = parser.parse_args()
     lis = [initial()]
     inputIsSafe = 0
-    ##while inputIsSafe:
-    ##fitness = input("Input comparison string to be found: ")
-    fitness = input("Input comparison string to be found: ")
+    fitness = arguments.genetic_string
+    fitness_cutoff = (100 + -arguments.fp) / 100
     track = {"generationCount":0, 'currentFit':0.0, \
              'lastFit':0.0, 'bestFit':0.0}
     while 1:
         lis, track = Mod1Run(lis, track)
         lis = Mod2Run(lis)
-        lis = Mod4Run(lis,fitness)
+        lis = Mod4Run(lis,fitness, fitness_cutoff)
         if track["bestFit"] == 100:
             break
         if track["generationCount"]%10 == 0 or track["bestFit"]>track["lastFit"]:
@@ -186,8 +189,8 @@ def main():
             print("Generation ",track["generationCount"],"Fitness ", track["bestFit"])
 
 # Should really add an option to test performance
-main()
-#cProfile.run('main()')
+#main()
+cProfile.run('main()')
     
     
     
