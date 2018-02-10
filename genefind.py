@@ -93,7 +93,7 @@ operations = ["random_shift(string,3)","random_shift(string,1)","random_shift(st
               "random_add_n(string)","random_add_n(string,3)","random_add_n(string,3,True)",\
               "random_delete_n(string)","random_delete_n(string,3)","random_delete_n(string,3,True)"]
 
-def Mod2Run(listIn):##pop gen
+def Mod2Run(listIn, population):##pop gen
     """Generate the population. Here we randomly pull from a set of predefined
     operations to mutate our existing strings, then execute the operation."""
     #listIn = [a,b]
@@ -101,7 +101,7 @@ def Mod2Run(listIn):##pop gen
     countProc = 0
     listOut = []
     listOut += listIn
-    while len(listOut)<=100:
+    while len(listOut)<=population:
         string = listOut[countProc]
         op = random.choice(operations)
         listOut.append(eval(op))
@@ -171,6 +171,8 @@ def main():
     parser.add_argument("--fitness-percentile", type=float, default=90, dest="fp",
                         help=("Number from 1 to 99.999... specifying the " 
                               "fitness cutoff per generation."))
+    parser.add_argument("--population", type=int, default=100, dest="pop",
+                        help=("An integer number representing the population size to use."))
     arguments = parser.parse_args()
     lis = [initial()]
     inputIsSafe = 0
@@ -180,7 +182,7 @@ def main():
              'lastFit':0.0, 'bestFit':0.0}
     while 1:
         lis, track = Mod1Run(lis, track)
-        lis = Mod2Run(lis)
+        lis = Mod2Run(lis, arguments.pop)
         lis = Mod4Run(lis,fitness, fitness_cutoff)
         if track["bestFit"] == 100:
             break
@@ -189,8 +191,8 @@ def main():
             print("Generation ",track["generationCount"],"Fitness ", track["bestFit"])
 
 # Should really add an option to test performance
-#main()
-cProfile.run('main()')
+main()
+#cProfile.run('main()')
     
     
     
