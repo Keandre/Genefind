@@ -148,9 +148,9 @@ def Mod1Run(listIn, trackIn={}):##iterator
         return listOut, trackOut
     return listOut, trackOut
 
-def initial():
+def initial(initial_string_size):
     output = ''
-    for i in range(random.randint(20,50)):
+    for i in range(initial_string_size):
         output+=random.choice(actg)
     return output
 
@@ -173,8 +173,10 @@ def main():
                               "fitness cutoff per generation."))
     parser.add_argument("--population", type=int, default=100, dest="pop",
                         help=("An integer number representing the population size to use."))
+    parser.add_argument("--initial-ss", type=int, default=50, dest="string_size",
+                        help="Integer representing initial strength length.")
     arguments = parser.parse_args()
-    lis = [initial()]
+    lis = [initial(arguments.string_size)]
     inputIsSafe = 0
     fitness = arguments.genetic_string
     fitness_cutoff = (100 + -arguments.fp) / 100
