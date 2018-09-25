@@ -33,37 +33,37 @@ import pdb
 
 #(???)
 actg = "ACTG"
+ACID_SPACE = 64
 
-def random_delete_n(stringIn, n=1, consecutive=False):
-    """Randomly delete n characters from a string."""
-    stringOut = stringIn
-    if len(stringOut)<n+1: return stringOut
+def random_delete_n(array, n=1, consecutive=False):
+    """Randomly delete n cells from a array."""
+    if len(array)<n+1: return array
     if not consecutive:
         for i in range(n):
-            counter = random.randrange(len(stringOut))
-            stringOut = stringOut[:counter]+stringOut[counter+1:]
-        return stringOut
+            cell_i = random.randrange(len(array))
+            del(array[cell_i])
+        return array
     else:
-        counter = random.randrange((len(stringOut)-n+1))
-        stringOut = stringOut[:counter]+stringOut[counter+n:]
-        return stringOut
+        start_cell_i = random.randrange(len(array)-n)
+        for i in range(start_cell_i,start_cell_i + n):
+            del(array[i])
+        return array
 
-def random_add_n(stringIn, n=1, consecutive=False):
-    """Randomly add n characters to a string."""
-    stringOut = stringIn
-    if len(stringOut)<n+1: return stringOut
+def random_add_n(array, n=1, consecutive=False):
+    """Randomly add n cells to a array."""
+    if len(array)<n+1: return array
     if not consecutive:
         for i in range(n):
-            counter = random.randrange((len(stringOut)))
-            stringOut = stringOut[:counter]+random.choice(actg)\
-                        +stringOut[counter:]
-        return stringOut
+            insert_i = random.randrange(len(array))
+            array.insert(insert_i,
+                         random.randrange(ACID_SPACE))
+        return array
     else:
-        counter = random.randrange((len(stringOut)-n+1))
+        insert_i = random.randrange(len(array))
         for i in range(n):
-            stringOut = stringOut[:counter]+random.choice(actg)\
-                        +stringOut[counter:]
-        return stringOut
+            array.insert(insert_i,
+                         random.randrange(ACID_SPACE))
+        return array
 
 def RS(stringIn):
     stringOut = stringIn
@@ -102,7 +102,6 @@ operations = ["random_shift(string,3)","random_shift(string,1)","random_shift(st
 def Mod2Run(listIn, population):##pop gen
     """Generate the population. Here we randomly pull from a set of predefined
     operations to mutate our existing strings, then execute the operation."""
-    #listIn = [a,b]
     mutCount = 0
     countProc = 0
     listOut = []
@@ -155,11 +154,13 @@ def Mod1Run(listIn, trackIn={}):##iterator
         return listOut, trackOut
     return listOut, trackOut
 
-def initial(initial_string_size):
-    output = ''
-    for i in range(initial_string_size):
-        output+=random.choice(actg)
-    return output
+def initial(initial_array_size):
+    array = []
+    for i in range(initial_array_size):
+        array.append(
+            randrange(ACID_SPACE)
+            )
+    return array
 
 ##base program
 print("Modules loaded.")
@@ -193,7 +194,7 @@ def run_genefind(target_string, fitness_percentile, population, initial_string_s
 class ThreadableGenefind:
     """An OOP version of the genefind mainloop which exposes its important tracking 
     values as attributes."""
-    def run(self, target_string, fitness_percentile,
+    def run(self, target_array, fitness_percentile,
             population, initial_string_size, shared_state=None):
         if shared_state:
             shared_threads = shared_state[0]
@@ -203,7 +204,7 @@ class ThreadableGenefind:
             self.ready = shared_state[3]
             self.ready.acquire()
         gene_population = [initial(initial_string_size)]
-        fitness = target_string
+        fitness = target_array
         fitness_cutoff = (100 - fitness_percentile) / 100
         self.population = population
         self.generation_count = 0
@@ -446,6 +447,8 @@ def main():
                         help=("An integer number representing the population size to use."))
     parser.add_argument("--initial-ss", type=int, default=50, dest="string_size",
                         help="Integer representing initial strength length.")
+    parser.add_argument("--test-performance", action="store_true",
+                        dest="test_perf", help="Run cprofile on genefind")
     arguments = parser.parse_args()
     if arguments.meta:
         find_parameters(arguments.genetic_string,
@@ -465,13 +468,6 @@ def main():
 # Should really add an option to test performance
 if __name__ == '__main__':
     main()
-#cProfile.run('main()')
-#find_parameters("ACGTAC",num_threads=4)
-#test = ThreadableGenefind()
-#test.run("ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT",
-#         90,
-#         100,
-#         50)
     
     
     
