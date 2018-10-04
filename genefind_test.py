@@ -1,6 +1,7 @@
 import unittest
 from genefind import random_delete_n
 from genefind import random_add_n
+from genefind import random_swap
 
 #TODO: Add class testing initial and other misc functions
 
@@ -34,6 +35,14 @@ class TestMutations(unittest.TestCase):
         random_add_n(array, n=3, consecutive=True)
         self.assertTrue(array[0] == 10 or array[-1] == 10)
 
+    def test_random_swap(self):
+        # Test that array mutates
+        array = [10,12,45,62,4]
+        array_intact = array.copy()
+        random_swap(array)
+        self.assertTrue(array != array_intact)
 
+        # Test that array swaps two cells
+        
 if __name__ == '__main__':
     unittest.main()

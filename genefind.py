@@ -31,7 +31,6 @@ import pdb
 #is less than 100, begin using output strings as input strings, in the order
 #they were written.
 
-#(???)
 actg = "ACTG"
 ACID_SPACE = 64
 
@@ -65,18 +64,13 @@ def random_add_n(array, n=1, consecutive=False):
                          random.randrange(ACID_SPACE))
         return array
 
-def RS(stringIn):
-    stringOut = stringIn
-    if len(stringOut)<2: return stringOut
-    ct1 = random.randrange((len(stringOut)))
-    ct2 = random.randrange((len(stringOut)))
-    if ct1>ct2: ct2, ct1 = ct1, ct2
-    stringOut = stringOut[:ct1]\
-                +stringOut[ct2:ct2+1]\
-                +stringOut[ct1+1:ct2]\
-                +stringOut[ct1:ct1+1]\
-                +stringOut[ct2+1:]
-    return stringOut
+def random_swap(array):
+    """Randomly swap the contents of two cells."""
+    if len(array)<2: return array
+    cell_i1 = random.randrange((len(array)))
+    cell_i2 = random.randrange((len(array)))
+    array[cell_i1],array[cell_i2] = array[cell_i2],array[cell_i1]
+    return array
 
 def random_shift(stringIn, n):
     """Deterministically shift a string starting from position n.
