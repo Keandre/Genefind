@@ -11,7 +11,9 @@
 from argparse import ArgumentParser
 import multiprocessing
 import random
+import numpy as np
 import statistics
+from functools import partial
 import json
 import pprint
 import cProfile
@@ -44,8 +46,10 @@ def random_delete_n(array, n=1, consecutive=False):
         return array
     else:
         start_cell_i = random.randrange(len(array)-n)
+        cells_deleted = 0 
         for i in range(start_cell_i,start_cell_i + n):
-            del(array[i])
+            del(array[i - cells_deleted])
+            cells_deleted += 1
         return array
 
 def random_add_n(array, n=1, consecutive=False):
@@ -84,26 +88,26 @@ def random_shift(stringIn, n):
     stringOut = stringIn[n:]+stringIn[:n]
     return stringOut
 
+# Here we define a set of partial functions that are used as operations to mutate
+# strings. 
+operations = [partial(random_shift,n=3), partial(random_shift,n=1),
+              partial(random_shift,n=-1),
+              partial(random_shift,n=-3), random_swap,
+              random_add_n, partial(random_add_n,n=3),
+              partial(random_add_n,n=3,consecutive=True),
+              random_delete_n,partial(random_delete_n,n=3),
+              partial(random_delete_n, n=3,consecutive=True)]
 
-# This might be confusing. Basically we're defining these operations in the global
-# scope, and then executing them using eval(). This is about 1/3 slower than a native
-# function call btw according to cProfiler.
-operations = ["random_shift(string,3)","random_shift(string,1)","random_shift(string,-1)",
-              "random_shift(string,-3)", "RS(string)",
-              "random_add_n(string)","random_add_n(string,3)","random_add_n(string,3,True)",\
-              "random_delete_n(string)","random_delete_n(string,3)","random_delete_n(string,3,True)"]
-
-def Mod2Run(listIn, population):##pop gen
+def Mod2Run(listIn, population):
     """Generate the population. Here we randomly pull from a set of predefined
     operations to mutate our existing strings, then execute the operation."""
-    mutCount = 0
     countProc = 0
     listOut = []
     listOut += listIn
     while len(listOut)<=population:
-        string = listOut[countProc]
-        op = random.choice(operations)
-        listOut.append(eval(op))
+        array = listOut[countProc]
+        operation = random.choice(operations)
+        listOut.append(operation(array))
         countProc+=1
     return listOut
 
@@ -152,7 +156,7 @@ def initial(initial_array_size):
     array = []
     for i in range(initial_array_size):
         array.append(
-            randrange(ACID_SPACE)
+            random.randrange(ACID_SPACE)
             )
     return array
 
