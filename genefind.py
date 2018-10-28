@@ -111,12 +111,27 @@ def Mod2Run(listIn, population):
         countProc+=1
     return listOut
 
-def Mod3Run(string1, string2):##string comparison
-    if len(string1)<2: return 0.0
-    difference = sum(1 if x == y else 0 for x, y in \
-                     zip(string1, string2)) \
-                     * 100 / len(string2)
-    lengthDif = min(len(string1)/len(string2),len(string2)/len(string1))
+def Mod3Run(candidate_a, fitness_a):
+    """Test fitness by comparing the similarity of two arrays.
+
+    The candidate array is compared to the fitness array, and a fitness score is 
+    returned by the procedure."""
+    # Store these values because we modify the arrays
+    candidate_length = len(candidate_a)
+    fitness_length = len(fitness_a)
+    if candidate_length<2: return 0.0
+    # Pad candidate array so it has the same length as fitness array
+    if candidate_length < fitness_length:
+        candidate_a = np.concatenate(
+            (candidate_a,[-1]*(fitness_length - candidate_length))
+            )
+    elif fitness_length < candidate_length:
+        fitness_a = np.concatenate(
+            (fitness_a,[-1]*(candidate_length - fitness_length))
+            )
+    difference = np.sum(candidate_a == fitness_a) * 100 / fitness_length
+    lengthDif = min(candidate_length/fitness_length,
+                    fitness_length/candidate_length)
     difference *= lengthDif
     return difference
 
@@ -174,7 +189,9 @@ def run_genefind(target_string, fitness_percentile, population, initial_string_s
     """Run one instance of the genefind algorithm and return the number of 
     generations to find the target string."""
     lis = [initial(initial_string_size)]
-    fitness = target_string
+    # TODO: Remove this before shipping, just a fixed value to test
+    #fitness = target_string
+    fitness = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
     fitness_cutoff = (100 - fitness_percentile) / 100
     track = {"generationCount":0, 'currentFit':0.0, \
              'lastFit':0.0, 'bestFit':0.0}
