@@ -105,10 +105,17 @@ def Mod2Run(listIn, population):
     listOut = []
     listOut += listIn
     while len(listOut)<=population:
-        array = listOut[countProc]
-        operation = random.choice(operations)
-        listOut.append(operation(array))
-        countProc+=1
+        array = listOut[countProc].copy()
+        if len(array) < 2:
+            # If we've evolved to extinction, add new stuff to select on
+            array[0] = random.randrange(ACID_SPACE)
+            array = random_add_n(array, n=2)
+            listOut.append(array)
+            countProc += 1
+        else:
+            operation = random.choice(operations)
+            listOut.append(operation(array))
+            countProc+=1
     return listOut
 
 def Mod3Run(candidate_a, fitness_a):
@@ -130,9 +137,8 @@ def Mod3Run(candidate_a, fitness_a):
             (fitness_a,[-1]*(candidate_length - fitness_length))
             )
     difference = np.sum(candidate_a == fitness_a) * 100 / fitness_length
-    lengthDif = min(candidate_length/fitness_length,
-                    fitness_length/candidate_length)
-    difference *= lengthDif
+    if candidate_length > fitness_length:
+        difference *= fitness_length/candidate_length
     return difference
 
 def Mod4Run(listIn, fitness, fitness_percentile):##pop cull

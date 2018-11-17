@@ -2,6 +2,7 @@ import unittest
 from genefind import random_delete_n
 from genefind import random_add_n
 from genefind import random_swap
+from genefind import Mod2Run
 from genefind import Mod3Run
 
 #TODO: Add class testing initial and other misc functions
@@ -46,6 +47,12 @@ class TestMutations(unittest.TestCase):
 
         # Test that array swaps two cells
 
+    def test_run_2_mod(self):
+        # Make sure that the population is not literally all the same array object
+        # -__-
+        output = Mod2Run([[12,10,20]],50)
+        self.assertNotEqual(id(output[0]),id(output[1]))
+        
     def test_run_3_mod(self):
         # Test that candidate arrays longer than fitness array receive score if
         # similar
@@ -57,6 +64,16 @@ class TestMutations(unittest.TestCase):
         # if similar
         candidate_a = [0,1,20]
         self.assertTrue(Mod3Run(candidate_a, fitness_a) > 0)
+
+        # Test that candidate array 3/5 of fitness receives score of 60
+        candidate_a = [0,1,20]
+        fitness_a = [0,1,20,50,30]
+        self.assertTrue(Mod3Run(candidate_a, fitness_a) == 60)
+
+        # Test that candidate array 5/3 of fitness receives score of 60
+        candidate_a = [0,1,20,50,30]
+        fitness_a = [0,1,20]
+        self.assertTrue(Mod3Run(candidate_a, fitness_a) == 60)
         
 if __name__ == '__main__':
     unittest.main()
