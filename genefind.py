@@ -96,7 +96,7 @@ operations = [partial(random_shift,n=3), partial(random_shift,n=1),
               random_add_n, partial(random_add_n,n=3),
               partial(random_add_n,n=3,consecutive=True),
               random_delete_n,partial(random_delete_n,n=3),
-              partial(random_delete_n, n=3,consecutive=True)]
+              partial(random_delete_n, n=3,consecutive=True),]
 
 def Mod2Run(listIn, population):
     """Generate the population. Here we randomly pull from a set of predefined
@@ -126,20 +126,14 @@ def Mod3Run(candidate_a, fitness_a):
     # Store these values because we modify the arrays
     candidate_length = len(candidate_a)
     fitness_length = len(fitness_a)
+    comparison_length = min(candidate_length, fitness_length)
     if candidate_length<2: return 0.0
-    # Pad candidate array so it has the same length as fitness array
-    if candidate_length < fitness_length:
-        candidate_a = np.concatenate(
-            (candidate_a,[-1]*(fitness_length - candidate_length))
-            )
-    elif fitness_length < candidate_length:
-        fitness_a = np.concatenate(
-            (fitness_a,[-1]*(candidate_length - fitness_length))
-            )
-    difference = np.sum(candidate_a == fitness_a) * 100 / fitness_length
-    if candidate_length > fitness_length:
-        difference *= fitness_length/candidate_length
-    return difference
+    #TODO: Figure out how to avoid the cost of converting these to arrays on each
+    # fitness test
+    match = np.count_nonzero(np.array(candidate_a[:comparison_length]) == 
+                             np.array(fitness_a[:comparison_length]))
+    length_penalty = (candidate_length - fitness_length)/fitness_length 
+    return ((match/fitness_length) - (length_penalty if length_penalty > 0 else 0)) * 100
 
 def Mod4Run(listIn, fitness, fitness_percentile):##pop cull
     listP = []
