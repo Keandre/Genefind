@@ -74,6 +74,11 @@ class TestMutations(unittest.TestCase):
         candidate_a = [0,1,20,50,30]
         fitness_a = [0,1,20]
         self.assertTrue(Mod3Run(candidate_a, fitness_a) == 60)
+
+        # Test that candidate array 100% of fitness receives score of 100
+        candidate_a = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
+        fitness_a = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
+        self.assertTrue(Mod3Run(candidate_a, fitness_a) == 100)
         
 if __name__ == '__main__':
     unittest.main()
