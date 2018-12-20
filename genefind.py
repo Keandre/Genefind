@@ -123,7 +123,6 @@ def Mod3Run(candidate_a, fitness_a):
 
     The candidate array is compared to the fitness array, and a fitness score is 
     returned by the procedure."""
-    # Store these values because we modify the arrays
     candidate_length = len(candidate_a)
     fitness_length = len(fitness_a)
     comparison_length = min(candidate_length, fitness_length)
