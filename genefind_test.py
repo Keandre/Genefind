@@ -1,9 +1,6 @@
 import unittest
-from genefind import random_delete_n
-from genefind import random_add_n
-from genefind import random_swap
-from genefind import Mod2Run
-from genefind import Mod3Run
+from genefind import *
+import pdb
 
 #TODO: Add class testing initial and other misc functions
 
@@ -79,6 +76,34 @@ class TestMutations(unittest.TestCase):
         candidate_a = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
         fitness_a = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
         self.assertTrue(Mod3Run(candidate_a, fitness_a) == 100)
+
+    def test_genetic2b64(self):
+        codons = {"AAA":0, "AAT":1, "AAG":2,
+                  "AAC":3, "ATA":4, "ATT":5,
+                  "ATG":6, "ATC":7, "AGA":8,
+                  "AGT":9, "AGG":10, "AGC":11,
+                  "ACA":12, "ACT":13, "ACG":14,
+                  "ACC":15, "TAA":16, "TAT":17,
+                  "TAG":18, "TAC":19, "TTA":20,
+                  "TTT":21, "TTG":22, "TTC":23,
+                  "TGA":24, "TGT":25, "TGG":26,
+                  "TGC":27, "TCA":28, "TCT":29,
+                  "TCG":30, "TCC":31, "GAA":32,
+                  "GAT":33, "GAG":34, "GAC":35,
+                  "GTA":36, "GTT":37, "GTG":38,
+                  "GTC":39, "GGA":40, "GGT":41,
+                  "GGG":42, "GGC":43, "GCA":44,
+                  "GCT":45, "GCG":46, "GCC":47,
+                  "CAA":48, "CAT":49, "CAG":50,
+                  "CAC":51, "CTA":52, "CTT":53,
+                  "CTG":54, "CTC":55, "CGA":56,
+                  "CGT":57, "CGG":58, "CGC":59,
+                  "CCA":60, "CCT":61, "CCG":62,
+                  "CCC":63}
+        # Test that string is serialized to proper length
+        genstring = "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
+        array_list = genetic2b64(genstring, codons)
+        self.assertEqual(len(array_list), len(genstring) / 3)
         
 if __name__ == '__main__':
     unittest.main()

@@ -174,6 +174,32 @@ def initial(initial_array_size):
             )
     return array
 
+codons = {"AAA":0, "AAT":1, "AAG":2,
+          "AAC":3, "ATA":4, "ATT":5,
+          "ATG":6, "ATC":7, "AGA":8,
+          "AGT":9, "AGG":10, "AGC":11,
+          "ACA":12, "ACT":13, "ACG":14,
+          "ACC":15, "TAA":16, "TAT":17,
+          "TAG":18, "TAC":19, "TTA":20,
+          "TTT":21, "TTG":22, "TTC":23,
+          "TGA":24, "TGT":25, "TGG":26,
+          "TGC":27, "TCA":28, "TCT":29,
+          "TCG":30, "TCC":31, "GAA":32,
+          "GAT":33, "GAG":34, "GAC":35,
+          "GTA":36, "GTT":37, "GTG":38,
+          "GTC":39, "GGA":40, "GGT":41,
+          "GGG":42, "GGC":43, "GCA":44,
+          "GCT":45, "GCG":46, "GCC":47,
+          "CAA":48, "CAT":49, "CAG":50,
+          "CAC":51, "CTA":52, "CTT":53,
+          "CTG":54, "CTC":55, "CGA":56,
+          "CGT":57, "CGG":58, "CGC":59,
+          "CCA":60, "CCT":61, "CCG":62,
+          "CCC":63}
+
+def genetic2b64(genstring, codons):
+    return [codons[genstring[int(3 * (i/3 - 1)):i]] for i in range(3,len(genstring) + 3,3)]
+
 ##base program
 print("Modules loaded.")
 print(\
@@ -188,9 +214,7 @@ def run_genefind(target_string, fitness_percentile, population, initial_string_s
     """Run one instance of the genefind algorithm and return the number of 
     generations to find the target string."""
     lis = [initial(initial_string_size)]
-    # TODO: Remove this before shipping, just a fixed value to test
-    #fitness = target_string
-    fitness = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
+    fitness = genetic2b64(target_string, codons)
     fitness_cutoff = (100 - fitness_percentile) / 100
     track = {"generationCount":0, 'currentFit':0.0, \
              'lastFit':0.0, 'bestFit':0.0}
