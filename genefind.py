@@ -214,7 +214,7 @@ def run_genefind(target_string, fitness_percentile, population, initial_string_s
     """Run one instance of the genefind algorithm and return the number of 
     generations to find the target string."""
     lis = [initial(initial_string_size)]
-    fitness = genetic2b64(target_string, codons)
+    fitness = genetic2b64(target_string.upper(), codons)
     fitness_cutoff = (100 - fitness_percentile) / 100
     track = {"generationCount":0, 'currentFit':0.0, \
              'lastFit':0.0, 'bestFit':0.0}
