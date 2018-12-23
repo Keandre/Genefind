@@ -54,7 +54,6 @@ def random_delete_n(array, n=1, consecutive=False):
 
 def random_add_n(array, n=1, consecutive=False):
     """Randomly add n cells to a array."""
-    if len(array)<n+1: return array
     if not consecutive:
         for i in range(n):
             insert_i = random.randrange(len(array))
@@ -126,7 +125,6 @@ def Mod3Run(candidate_a, fitness_a):
     candidate_length = len(candidate_a)
     fitness_length = len(fitness_a)
     comparison_length = min(candidate_length, fitness_length)
-    if candidate_length<2: return 0.0
     #TODO: Figure out how to avoid the cost of converting these to arrays on each
     # fitness test
     match = np.count_nonzero(np.array(candidate_a[:comparison_length]) == 
@@ -225,7 +223,7 @@ def run_genefind(target_string, fitness_percentile, population, initial_string_s
         if track["bestFit"] == 100:
             break
         if track["generationCount"]%1000 == 0 or track["bestFit"]>track["lastFit"]:
-            # This should really be put under a -v option
+            #TODO: This should really be put under a -v option
             print("Generation ",track["generationCount"],"Fitness ", track["bestFit"])
     return track["generationCount"] * population
 
@@ -428,6 +426,7 @@ def find_parameters(target_string, generations=10, sample_runs=5,
     set, then mutates and finds the fitness of each member, finally culling the 
     members which do not meet a certain level of relative performance."""
     fitness_cutoff = (100 - fitness_percentile) / 100
+    fitness = genetic2b64(target_string.upper(), codons)
     initial_parameters = {"fitness_percentile":90,
                           "population":100,
                           "string_size":50,
@@ -449,7 +448,7 @@ def find_parameters(target_string, generations=10, sample_runs=5,
             tracking["current_best"]["performance"]))
         parameter_population = fp_mutate(parameter_population, population)
         performance_limit = tracking["current_best"]["performance"] * 200 # rough heuristic of when to quit
-        parameter_population = fp_sample(target_string,
+        parameter_population = fp_sample(fitness,
                                          parameter_population,
                                          sample_runs,
                                          performance_limit,

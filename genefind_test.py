@@ -22,6 +22,16 @@ class TestMutations(unittest.TestCase):
         self.assertTrue(array == [10] or array == [12])
 
     def test_random_add_n(self):
+        # Test that arrays of length n <= 2 work
+        array = [12]
+        array_intact = array.copy()
+        random_add_n(array,n=2)
+        self.assertTrue(len(array) == len(array_intact) + 2)
+
+        array = [12,16]
+        array_intact = array.copy()
+        random_add_n(array, n=2)
+        self.assertTrue(len(array) == len(array_intact) + 2)
         # Test that non-consecutive adds work
         array = [10,12,45,62,4]
         array_intact = array.copy()
@@ -104,6 +114,26 @@ class TestMutations(unittest.TestCase):
         genstring = "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
         array_list = genetic2b64(genstring, codons)
         self.assertEqual(len(array_list), len(genstring) / 3)
+
+
+class TestGeneFind(unittest.TestCase):
+    """Test functions and classes which run the genefind algorithm."""
+
+    def test_run_genefind(self):
+        # Test that string 'tgattacaa' converges
+        self.assertTrue(run_genefind('tgattacaa', 90, 100, 50))
+        
+class TestParameterFind(unittest.TestCase):
+    """Test functions and classes related to the meta-algorithm for finding the best
+    parameters to run genefind with."""
+    
+    def test_fp_cull(self):
+        parameter_population = [{"performance":i} for i in range(0,10)]
+        # Test that 90th percentile only returns 90th percentile performance
+        self.assertEqual(len(fp_cull(parameter_population, .10)),1)
+        # Test that algorithm works to 2 digits of precision
+        parameter_population = [{"performance":i} for i in range (0,100)]
+        self.assertEqual(len(fp_cull(parameter_population,.05)),5)
         
 if __name__ == '__main__':
     unittest.main()
