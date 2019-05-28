@@ -128,8 +128,11 @@ class TestGeneFind(unittest.TestCase):
     """Test functions and classes which run the genefind algorithm."""
 
     def test_run_genefind(self):
+        start_time = time.time()
+        print_median_generations_needed(10)
+        print("Program took ", str(time.time() - start_time), " time to run")
         # Test that string 'tgattacaa' converges
-        self.assertTrue(run_genefind('tgattacaa', 90, 100, 50))
+        self.assertTrue(run_genefind('tgattacaa', 90, 100, 25))
         
 class TestParameterFind(unittest.TestCase):
     """Test functions and classes related to the meta-algorithm for finding the best
