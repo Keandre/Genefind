@@ -254,9 +254,9 @@ def run_genefind(target_string, fitness_percentile, population, initial_string_s
         lis = Mod4Run(lis,fitness, fitness_cutoff)
         if track["bestFit"] == 100:
             break
-        # if track["generationCount"]%1000 == 0 or track["bestFit"]>track["lastFit"]:
-        #     #TODO: This should really be put under a -v option
-        #     print("Generation ",track["generationCount"],"Fitness ", track["bestFit"])
+        if track["generationCount"]%1000 == 0 or track["bestFit"]>track["lastFit"]:
+            #TODO: This should really be put under a -v option
+            print("Generation ",track["generationCount"],"Fitness ", track["bestFit"])
     return track["generationCount"] * population
 
 class ThreadableGenefind:
