@@ -70,9 +70,8 @@ def random_add_n(array, n=1, consecutive=False):
 def random_swap(array):
     """Randomly swap the contents of two cells."""
     if len(array)<2: return array
-    cell_i1 = random.randrange((len(array)))
-    cell_i2 = random.randrange((len(array)))
-    array[cell_i1],array[cell_i2] = array[cell_i2],array[cell_i1]
+    idx = random.sample(range(len(array)), 2)
+    array[idx[0]], array[idx[1]] = array[idx[1]], array[idx[0]]
     return array
 
 def random_shift(stringIn, n):
