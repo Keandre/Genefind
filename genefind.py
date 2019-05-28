@@ -86,6 +86,30 @@ def random_shift(stringIn, n):
     stringOut = stringIn[n:]+stringIn[:n]
     return stringOut
 
+# Gotten from https://www.geeksforgeeks.org/longest-common-subsequence-dp-4/ 
+def lcs(X , Y): 
+    """Dynamic Programming implementation of Longest Common Substring problem."""
+    # find the length of the strings 
+    m = len(X)
+    n = len(Y)
+  
+    # declaring the array for storing the dp values 
+    L = [[None]*(n+1) for i in range(m+1)]
+  
+    """Following steps build L[m+1][n+1] in bottom up fashion 
+    Note: L[i][j] contains length of LCS of X[0..i-1] 
+    and Y[0..j-1]"""
+    for i in range(m+1):
+        for j in range(n+1):
+            if i == 0 or j == 0:
+                L[i][j] = 0
+            elif X[i-1] == Y[j-1]:
+                L[i][j] = L[i-1][j-1]+1
+            else: 
+                L[i][j] = max(L[i-1][j], L[i][j-1])
+    # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1] 
+    return L[m][n] 
+
 # Here we define a set of partial functions that are used as operations to mutate
 # strings. 
 operations = [partial(random_shift,n=3), partial(random_shift,n=1),
@@ -123,13 +147,9 @@ def Mod3Run(candidate_a, fitness_a):
     returned by the procedure."""
     candidate_length = len(candidate_a)
     fitness_length = len(fitness_a)
-    comparison_length = min(candidate_length, fitness_length)
-    #TODO: Figure out how to avoid the cost of converting these to arrays on each
-    # fitness test
-    match = np.count_nonzero(np.array(candidate_a[:comparison_length]) == 
-                             np.array(fitness_a[:comparison_length]))
-    length_penalty = (candidate_length - fitness_length)/fitness_length 
-    return ((match/fitness_length) - (length_penalty if length_penalty > 0 else 0)) * 100
+    comparison_length = max(candidate_length, fitness_length)
+    match = lcs(candidate_a, fitness_a)
+    return (match/comparison_length)*100
 
 def Mod4Run(listIn, fitness, fitness_percentile):##pop cull
     listP = []
@@ -159,9 +179,16 @@ def Mod1Run(listIn, trackIn={}):##iterator
     if bestE[0] == 100:
         print("Result Found.","\n"\
               ,"Generation count =", trackOut["generationCount"], '\n'\
-              ,"String :\n", bestE[1])
+              ,"String :\n", bestE[1], GetGeneString(bestE[1]))
         return listOut, trackOut
     return listOut, trackOut
+
+def GetGeneString(codon_list):
+    gene_string = ""
+    codon_keys = list(codons.keys())
+    for c in codon_list:
+        gene_string += codon_keys[c]
+    return gene_string
 
 def initial(initial_array_size):
     array = []

@@ -73,27 +73,27 @@ class TestMutations(unittest.TestCase):
         # similar
         candidate_a = [0,1,20,45,52,10,8,4,3,1]
         fitness_a = [0,1,20,50,30,40,10,60]
-        self.assertTrue(Mod3Run(candidate_a, fitness_a) > 0)
+        self.assertGreater(Mod3Run(candidate_a, fitness_a), 0)
 
         # Test that candidate arrays shorter than fitness array receive score
         # if similar
         candidate_a = [0,1,20]
-        self.assertTrue(Mod3Run(candidate_a, fitness_a) > 0)
+        self.assertGreater(Mod3Run(candidate_a, fitness_a), 0)
 
         # Test that candidate array 3/5 of fitness receives score of 60
         candidate_a = [0,1,20]
         fitness_a = [0,1,20,50,30]
-        self.assertTrue(Mod3Run(candidate_a, fitness_a) == 60)
+        self.assertEqual(Mod3Run(candidate_a, fitness_a), 60)
 
         # Test that candidate array 5/3 of fitness receives score of 60
         candidate_a = [0,1,20,50,30]
         fitness_a = [0,1,20]
-        self.assertTrue(Mod3Run(candidate_a, fitness_a) == 60)
+        self.assertEqual(Mod3Run(candidate_a, fitness_a), 60)
 
         # Test that candidate array 100% of fitness receives score of 100
-        candidate_a = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
+        candidate_a = [20, 43, 10, 45, 22, 39, 4, 1, 6, 7, 0, 55]
         fitness_a = [0, 55, 20, 43, 10, 45, 22, 39, 4, 1, 6, 7]
-        self.assertTrue(Mod3Run(candidate_a, fitness_a) == 100)
+        self.assertEqual(Mod3Run(candidate_a, fitness_a), 100)
 
     def test_genetic2b64(self):
         codons = {"AAA":0, "AAT":1, "AAG":2,
