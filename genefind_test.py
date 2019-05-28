@@ -47,7 +47,7 @@ class TestMutations(unittest.TestCase):
     def test_random_swap(self):
         for x in range(100):
             # Test that array mutates
-            array = [10,12,45,62,4]
+            array = random.sample(range(0, 64), random.randrange(3, 8))
             array_intact = array.copy()
             random_swap(array)
             # Test that the array was altered, and we didn't end up swapping the same element with itself.
@@ -55,12 +55,12 @@ class TestMutations(unittest.TestCase):
 
             # Test that array swaps two cells
             swappedIndexes = []
-            for i in range(len(array)):
+            for i in range(0, len(array)):
                 if array[i] != array_intact[i]:
                     swappedIndexes.insert(0, i)
             self.assertTrue(len(swappedIndexes) == 2)
-            self.assertTrue(array[swappedIndexes[0]] == array_intact[swappedIndexes[1]] and
-                            array[swappedIndexes[1] == array_intact[swappedIndexes[0]]])
+            self.assertEqual(array[swappedIndexes[0]], array_intact[swappedIndexes[1]])
+            self.assertEqual(array[swappedIndexes[1]], array_intact[swappedIndexes[0]])
 
     def test_run_2_mod(self):
         # Make sure that the population is not literally all the same array object
