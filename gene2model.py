@@ -193,9 +193,6 @@ class Atom:
     def update_pos(self, atom):
         self._coordinates = self._coordinates + atom._coordinates
 
-    def update_pos_pdb(self, atom):
-        self._coordinates = self._coordinates - atom._coordinates
-
     def get_name(self):
         return self._name
 
@@ -310,65 +307,6 @@ class GeneToModelConverter:
         acid_names_list = [codon_to_acid[codon] for codon in codons_list]
         acid_names = ''.join(acid_names_list)
         self.convert_acids_to_gene(acid_names, filepath)
-    
-# old pdb methods for making acid table
-
-    def _extract_acid_table_from_pdb(self, pdbfile):
-        """Extract the amino acid to atomic position table from a provided pdb file.
-
-        It is important that the pdb file contain all the amino acids for this
-        to work."""
-        if type(pdbfile) == str:
-            pdbfile = open(pdbfile)
-        lines = pdbfile.readlines()
-        acid_table = {}
-        PDBAtom = namedtuple('PDBAtom', ['record_name', 'serial', 'name',
-                                         'residue_name', 'chain_id', 'residue_sequence',
-                                         'x', 'y', 'z',
-                                         'occupancy', 'temp_factor', 'charge'])
-        model = False # Whether we're currently reading lines from a model
-        previous_tail = Atom('origin', AminoAcid('placeholder'), [0,0,0])
-        acid_ranges = []
-        current_range = []
-        for line in enumerate(lines):
-            if line[1].split()[0] == 'MODEL':
-                model = True
-                continue
-            elif line[1].split()[0] == 'ENDMDL':
-                model = False
-                continue
-
-            if model:
-                try:
-                    atom = PDBAtom._make(line[1].split())
-                except TypeError:
-                    if line[1].split()[0] == 'TER':
-                        continue
-
-            if model and (atom.charge == 'N') and atom.residue_name not in acid_table:
-                current_range.append(line[0])
-                if len(current_range) == 2:
-                    acid_ranges.append(current_range)
-                    current_range = []
-
-        for line_range in acid_ranges:
-            # TODO: Skip ones we've already created to speed this up
-            acid_lines = lines[line_range[0]:line_range[1]]
-            pdb_atoms = [PDBAtom._make(line.split()) for line in acid_lines
-                         if line.split()[0] == 'ATOM']
-            acid = self._build_reference_acid_from_pdb(pdb_atoms, previous_tail)
-            previous_tail = acid.tail()
-            acid_table[acid.name] = acid
-
-    def _build_reference_acid_from_pdb(self, pdb_atoms, previous_tail):
-        acid = AminoAcid(pdb_atoms[0].acid)
-        atoms = [Atom(atom.atom, acid,
-                      [float(atom.x), float(atom.y), float(atom.z)])
-                 for atom in pdb_atoms]
-        for atom in atoms:
-            atom.update_pos_pdb(previous_tail)
-            acid.push_atom(atom)
-        return acid
 
 # Testing code
 
