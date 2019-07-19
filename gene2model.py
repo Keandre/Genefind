@@ -10,7 +10,7 @@ class Gene:
     def __init__(self, acids):
         self._acids = []
         for acid in acids:
-            push_acid(acid)
+            self.push_acid(acid)
 
     def push_acid(self, new_acid):
         """Append a new amino acid to the gene sequence."""
@@ -26,24 +26,24 @@ class Gene:
         xmax = ymax = zmax = 0
         xmin = ymin = zmin = 1000000
         for acid in self._acids:
-            num_atoms += acid.num_atoms
+            num_atoms += acid.num_atoms()
             xmax = max(xmax, acid.max_x())
             ymax = max(ymax, acid.max_y())
             zmax = max(zmax, acid.max_z())
             xmin = min(xmin, acid.min_x())
             ymin = min(ymin, acid.min_y())
             zmin = min(zmin, acid.min_z())
-        box_size_x = str(2 * (xmax-xmin)))
-        box_size_y = str(2 * (ymax-ymin)))
-        box_size_z = str(2 * (zmax-zmin)))
+        box_size_x = str((2 * (xmax-xmin)))
+        box_size_y = str((2 * (ymax-ymin)))
+        box_size_z = str((2 * (zmax-zmin)))
 
         # Get column lengths so that we can format it in fixed width format
         column_lengths = [5 + len(str(len(self._acids)))] #first column: acid number and name
         column_lengths.append(7) #second column: atom name
         column_lengths.append(len(str(num_atoms))) #third column: atom sequence number
-        column_lengths.append(3 + len(str(max(abs(xmax), abs(xmin)))) #fourth column: atom x coordinate
-        column_lengths.append(3 + len(str(max(abs(ymax), abs(ymin)))) #fifth column: atom y coordinate
-        column_lengths.append(3 + len(str(max(abs(zmax), abs(zmin)))) #sixth column: atom z coordinate
+        column_lengths.append((3 + len(str(max(abs(xmax), abs(xmin)))))) #fourth column: atom x coordinate
+        column_lengths.append((3 + len(str(max(abs(ymax), abs(ymin)))))) #fifth column: atom y coordinate
+        column_lengths.append((3 + len(str(max(abs(zmax), abs(zmin)))))) #sixth column: atom z coordinate
 
         #add title to .gro string
         gromacs = title + "\n "
@@ -55,7 +55,7 @@ class Gene:
         for acid in self._acids:
             acid_num += 1
             gromacs += acid.to_gromacs(column_lengths, acid_num, atom_num)
-            atom_num += acid.num_atoms
+            atom_num += acid.num_atoms()
         #add box vector to .gro string
         gromacs += "   " + box_size_x + "   " + box_size_y + "   " + box_size_z
 
@@ -78,6 +78,14 @@ class AminoAcid:
         """Return the 'tail' atom of the acid."""
         return self._atoms[-1]
 
+    def get_name(self):
+        return self.name
+
+    def change_name(self, name):
+        self.name = name
+        for atom in self._atoms:
+            atom.change_acid(name)
+
     def atom_at_index(self, index):
         """return atom at indexed position."""
         return self._atoms[index]
@@ -88,46 +96,48 @@ class AminoAcid:
 
     def max_x(self):
         """Return the largest x coordinate"""
-        return max((atom.xyz[0]) for atom in self._atoms)
+        return max((atom.get_coordinates()[0]) for atom in self._atoms)
 
     def max_y(self):
         """Return the largest y coordinate"""
-        return max((atom.xyz[1]) for atom in self._atoms)
+        return max((atom.get_coordinates()[1]) for atom in self._atoms)
 
     def max_z(self):
         """Return the largest z coordinate"""
-        return max((atom.xyz[2]) for atom in self._atoms)
+        return max((atom.get_coordinates()[2]) for atom in self._atoms)
 
     def min_x(self):
         """Return the smallest x coordinate"""
-        return min((atom.xyz[0]) for atom in self._atoms)
+        return min((atom.get_coordinates()[0]) for atom in self._atoms)
 
     def min_y(self):
         """Return the smallest y coordinate"""
-        return min((atom.xyz[1]) for atom in self._atoms)
+        return min((atom.get_coordinates()[1]) for atom in self._atoms)
 
     def min_z(self):
         """Return the smallest z coordinate"""
-        return min((atom.xyz[2]) for atom in self._atoms)
+        return min((atom.get_coordinates()[2]) for atom in self._atoms)
 
     def push_atom(self, atom):
         self._atoms.append(atom)
 
     def convert_to_first_acid(self, beginning_atoms):
         """First acid in protein chain has a different amino group structure."""
+        beginning_atoms.change_name(self.name)
         self._atoms[1] = beginning_atoms.atom_at_index(0)
         self._atoms.insert(2, beginning_atoms.atom_at_index(1))
         self._atoms.insert(3, beginning_atoms.atom_at_index(2))
-        self._atoms[1].update_pos(acid.head())
-        self._atoms[2].update_pos(acid.head())
-        self._atoms[3].update_pos(acid.head())
+        self._atoms[1].update_pos(self.head())
+        self._atoms[2].update_pos(self.head())
+        self._atoms[3].update_pos(self.head())
 
     def convert_to_last_acid(self, ending_atoms):
         """Last acid in protein chain has a different carboxyl group structure."""
+        ending_atoms.change_name(self.name)
         self._atoms[-1] = ending_atoms.atom_at_index(-2)
         self._atoms.append(ending_atoms.atom_at_index(-1))
-        self._atoms[-2].update_pos(acid.head())
-        self._atoms[-1].update_pos(acid.head())
+        self._atoms[-2].update_pos(self.head())
+        self._atoms[-1].update_pos(self.head())
     
     def accomodate(self, acid):
         """Moves atoms in the acid so that it appears at the end of the chain."""
@@ -144,12 +154,12 @@ class AminoAcid:
             gromacs += atom.get_name() #atom name
             gromacs += ' ' * (column_lengths[2] - len(str(atom_num)))
             gromacs += str(atom_num) #atom number
-            gromacs += ' ' * (column_lengths[3] - len(str(atom.xyz[0])))
-            gromacs += str(atom.xyz[0]) #x coordinate
-            gromacs += ' ' * (column_lengths[4] - len(str(atom.xyz[1])))
-            gromacs += str(atom.xyz[1]) #y coordinate
-            gromacs += ' ' * (column_lengths[5] - len(str(atom.xyz[2])))
-            gromacs += str(atom.xyz[2]) + '\n' #z coordinate
+            gromacs += ' ' * (column_lengths[3] - len(str(atom.get_coordinates()[0])))
+            gromacs += str(atom.get_coordinates()[0]) #x coordinate
+            gromacs += ' ' * (column_lengths[4] - len(str(atom.get_coordinates()[1])))
+            gromacs += str(atom.get_coordinates()[1]) #y coordinate
+            gromacs += ' ' * (column_lengths[5] - len(str(atom.get_coordinates()[2])))
+            gromacs += str(atom.get_coordinates()[2]) + '\n' #z coordinate
             atom_num += 1
         return gromacs
             
@@ -184,6 +194,12 @@ class Atom:
     def get_name(self):
         return self._name
 
+    def get_coordinates(self):
+        return self._coordinates
+
+    def change_acid(self, acid):
+        self.amino_acid = acid
+
 class GeneToModelConverter:
     """Conversion class to turn genefind codon strings into .gro atomic model files.
 
@@ -205,18 +221,20 @@ class GeneToModelConverter:
 
         acid_ranges = []
         current_range = []
-
+        last_acid = ""
         # Loop through each line of the file and construct a range of atoms for each acid
-        for line in enumerate(lines): 
+        for line in lines: 
             atom = reference_atom._make(line.split())
-            if atom.acid not in acid_table:
+            if atom.acid != last_acid:
                 acid_ranges.append(current_range)
                 current_range = []
             current_range.append(atom)
+            last_acid = atom.acid
 
         # Append the final acid range
         acid_ranges.append(current_range)
-
+        # hacky: Delete errant empty range appearing in beginning
+        del acid_ranges[0]
         # build the acids and add them to the acid table
         for acid_range in acid_ranges:
             acid = self._build_reference_acid(acid_range)
@@ -225,7 +243,7 @@ class GeneToModelConverter:
         return acid_table
 
     def _build_reference_acid(self, atoms):
-        acid = AminoAcid(atoms[0].name)
+        acid = AminoAcid(atoms[0].acid)
         atoms = [Atom(atom.name, acid,
                       [float(atom.x), float(atom.y), float(atom.z)])
                  for atom in atoms]
@@ -260,7 +278,7 @@ class GeneToModelConverter:
             "CCC":"PRO"}
         
         codons_list = [codons[i:i+3] for i in range(0, len(codons), 3)]
-        acids = [self.acid_table[codons_list[i]] for i in range(0, len(codons_list))]
+        acids = [self.acid_table[codon_to_acid[codons_list[i]]] for i in range(0, len(codons_list))]
 
         end_index = -1
         for i in range(0, len(acids)):
@@ -273,8 +291,8 @@ class GeneToModelConverter:
         acids[0].convert_to_first_acid(self.acid_table['BEG'])
         acids[-1].convert_to_last_acid(self.acid_table['END'])
 
-        Gene gene = Gene(acids)
-        Path path = Path(filepath)
+        gene = Gene(acids)
+        path = Path(filepath)
         gromacs = gene.to_gromacs(path.stem)
         file = open(filepath, 'w')
         file.write(gromacs)
