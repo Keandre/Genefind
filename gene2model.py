@@ -261,7 +261,7 @@ class GeneToModelConverter:
         acids_list = [acid_names[i:i+3] for i in range(0, len(acid_names), 3)]
         acids = []
         for acid_name in acids_list:
-            acids.append(self.acid_table[acid_name])
+            acids.append(copy.deepcopy(self.acid_table[acid_name]))
         end_index = -1
         for i in range(0, len(acids)):
             if acids[i].get_name() == "END":
