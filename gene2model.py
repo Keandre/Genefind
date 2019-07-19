@@ -138,8 +138,8 @@ class AminoAcid:
 
     def accomodate_atom(self, atom):
         """Moves atoms in the acid so that it appears next to an atom."""
-        for atom in self._atoms:
-            atom.update_pos(atom)
+        for a in self._atoms:
+            a.update_pos(atom)
 
     def accomodate(self, acid):
         """Moves atoms in the acid so that it appears at the end of the chain."""
