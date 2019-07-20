@@ -16,6 +16,7 @@ class Gene:
         """Append a new amino acid to the gene sequence."""
         if self._acids:
             new_acid.accomodate(self._acids[-1])
+            new_acid.add_offset(0.13, 0, 0)
         self._acids.append(new_acid)
 
     def to_gromacs(self, title):
@@ -38,9 +39,9 @@ class Gene:
         box_size_z = "{:.3f}".format((2 * (zmax-zmin)))
 
         # Get column lengths so that we can format it in fixed width format
-        column_lengths = [5 + len(str(len(self._acids)))] #first column: acid number and name
+        column_lengths = [7 + len(str(len(self._acids)))] #first column: acid number and name
         column_lengths.append(7) #second column: atom name
-        column_lengths.append((1 + len(str(num_atoms)))) #third column: atom sequence number
+        column_lengths.append((3 + len(str(num_atoms)))) #third column: atom sequence number
         column_lengths.append((3 + len("{:.3f}".format(max(abs(xmax), abs(xmin)))))) #fourth column: atom x coordinate
         column_lengths.append((3 + len("{:.3f}".format(max(abs(ymax), abs(ymin)))))) #fifth column: atom y coordinate
         column_lengths.append((3 + len("{:.3f}".format(max(abs(zmax), abs(zmin)))))) #sixth column: atom z coordinate
@@ -143,7 +144,12 @@ class AminoAcid:
 
     def accomodate(self, acid):
         """Moves atoms in the acid so that it appears at the end of the chain."""
-        self.accomodate_atom(acid.tail())
+        self.accomodate_atom(acid.atom_at_index(-2))
+
+    def add_offset(self, x, y, z):
+        """Adds a positional offset to each atom in the acid"""
+        for atom in self._atoms:
+            atom.add_offset([x, y, z])
 
     def to_gromacs(self, column_lengths, acid_num, atom_num):
         """Convert the acid to a series of gromacs text format lines."""
@@ -191,7 +197,12 @@ class Atom:
             return "<{} Atom>".format(self._name)
     
     def update_pos(self, atom):
-        self._coordinates = self._coordinates + atom._coordinates
+        """adds an offset to the atom's position based on another atom's position."""
+        self.add_offset(atom._coordinates)
+
+    def add_offset(self, xyz):
+        """Adds a vector offset to the atom's position."""
+        self._coordinates = self._coordinates + xyz
 
     def get_name(self):
         return self._name
