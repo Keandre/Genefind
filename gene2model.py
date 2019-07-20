@@ -34,9 +34,8 @@ class Gene:
             xmin = min(xmin, acid.min_x())
             ymin = min(ymin, acid.min_y())
             zmin = min(zmin, acid.min_z())
-        box_size_x = "{:.3f}".format((2 * (xmax-xmin)))
-        box_size_y = "{:.3f}".format((2 * (ymax-ymin)))
-        box_size_z = "{:.3f}".format((2 * (zmax-zmin)))
+        max_len = max(xmax-ymax, ymax-ymin, zmax-zmin)
+        box_size_x = box_size_y = box_size_z = "{:.3f}".format(2 * max_len)
 
         # Get column lengths so that we can format it in fixed width format
         column_lengths = [7 + len(str(len(self._acids)))] #first column: acid number and name
